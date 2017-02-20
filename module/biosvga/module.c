@@ -2,7 +2,7 @@
 #include <module.h>
 #include <module_console.h>
 
-uint16_t *video_mem = (uint16_t*)0xB8000;
+uint16_t *video_mem = (uint16_t*)0xC00B8000;
 
 void biosvga_put(char c, char color_fg, char color_bg, uint16_t x, uint16_t y) {
     uint8_t attr = (color_bg << 4) | (color_fg & 0xF);
@@ -38,9 +38,14 @@ void biosvga_refresh() {
 
 }
 
+int biosvga_tty() {
+    return 1;
+}
+
 struct console_module biosvga_module = {
     .put    = biosvga_put,
     .get    = biosvga_get,
+    .tty    = biosvga_tty,
     .cursor = biosvga_cursor,
     .width  = biosvga_width,
     .height = biosvga_height,

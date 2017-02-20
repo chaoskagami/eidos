@@ -3,9 +3,17 @@
 # The only one that needs changing is the assembler
 # rule, as we use nasm instead of GNU as.
 
+CONF=-DCONF_EARLY_KPRINTF=1
+
 TGT=i686
 
-SOURCES=$(TGT)/entry.o $(TGT)/utils.o module/biosvga/module.o module/console.o common/kernel_main.o
+SOURCES= \
+    $(TGT)/entry.o \
+    $(TGT)/utils.o \
+    module/biosvga/module.o module/serial/module.o module/console.o \
+    common/stdc/memmove.o common/stdc/strlen.o common/stdc/memcmp.o common/stdc/memset.o common/stdc/memcpy.o \
+    common/kernel_main.o
+
 LDSC=$(TGT)/link.ld
 
 TGTNAM=$(TGT)-elf
@@ -35,10 +43,10 @@ link: $(SOURCES)
 	$(LD) $(LDFLAGS) -o kernel $(LIBS) $(SOURCES)
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(ASFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) $(CONF) $(CPPFLAGS) $(ASFLAGS) -c -o $@ $<
 
 %.o: %.cxx
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(ASFLAGS) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) $(CONF) $(CPPFLAGS) $(ASFLAGS) -c -o $@ $<
 
 %.o: %.S
 	$(AS) $(ASFLAGS) -c -o $@ $<
