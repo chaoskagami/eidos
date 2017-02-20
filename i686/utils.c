@@ -145,7 +145,7 @@ struct interrupt_frame
    uint32_t eip, cs, eflags, esp, ss; // Pushed by the processor automatically.
 };
 
-char *strs[] = {
+char *strs_isr[] = {
     "divide by zero",
     "debug exception",
     "non maskable interrupt",
@@ -170,9 +170,54 @@ char *strs[] = {
 void isr_handler(struct interrupt_frame* esp) {
     kprintf("int %x: ", esp->int_no);
     if (esp->int_no <= 18) {
-        kprintf("%s\n", strs[esp->int_no]);
+        kprintf("%s\n", strs_isr[esp->int_no]);
     } else {
         kprintf("reserved\n");
+    }
+}
+
+uint64_t ticks = 0;
+
+uint64_t kclock() {
+    return ticks;
+}
+
+char *irq_strs[] = {
+    "PIT",
+    "Keyboard",
+    "Cascade",
+    "COM2",
+    "COM1",
+    "LPT1",
+    "CMOS rtc",
+    "Peripheral 1",
+    "Peripheral 2",
+    "Peripheral 3",
+    "PS/2 Mouse",
+    "FPU/Coprocessor",
+    "ATA0",
+    "ATA1",
+};
+
+void irq_handler(struct interrupt_frame* esp) {
+    char c_kb;
+
+    if (esp->int_no >= 7) {
+         outb(0xA0, 0x20);
+    }
+
+    outb(0x20, 0x20);
+
+    switch(esp->int_no) {
+        case 0:
+            ++ticks;
+            break;
+        case 1:
+            c_kb = inb(0x60);
+            kputc(c_kb);
+            break;
+        default:
+            break;
     }
 }
 
@@ -209,8 +254,28 @@ extern void isr_29();
 extern void isr_30();
 extern void isr_31();
 
+extern void irq_0();
+extern void irq_1();
+extern void irq_2();
+extern void irq_3();
+extern void irq_4();
+extern void irq_5();
+extern void irq_6();
+extern void irq_7();
+extern void irq_8();
+extern void irq_9();
+extern void irq_10();
+extern void irq_11();
+extern void irq_12();
+extern void irq_13();
+extern void irq_14();
+extern void irq_15();
+
 #define ISR_CALL(N) \
     idt_set_gate( N , (uint32_t) isr_##N , 0x08, 0x8E )
+
+#define IRQ_CALL(N) \
+    idt_set_gate( 32 + N , (uint32_t) irq_##N , 0x08, 0x8E )
 
 static void init_idt()
 {
@@ -252,10 +317,58 @@ static void init_idt()
     ISR_CALL(30);
     ISR_CALL(31);
 
+    outb(0x20, 0x11);
+    outb(0xA0, 0x11);
+
+    outb(0x21, 0x20);
+    outb(0xA1, 0x28);
+
+    outb(0x21, 0x04);
+    outb(0xA1, 0x02);
+
+    outb(0x21, 0x01);
+    outb(0xA1, 0x01);
+
+    outb(0x21, 0x0);
+    outb(0xA1, 0x0);
+
+    IRQ_CALL(0);
+    IRQ_CALL(1);
+    IRQ_CALL(2);
+    IRQ_CALL(3);
+    IRQ_CALL(4);
+    IRQ_CALL(5);
+    IRQ_CALL(6);
+    IRQ_CALL(7);
+    IRQ_CALL(8);
+    IRQ_CALL(9);
+    IRQ_CALL(10);
+    IRQ_CALL(11);
+    IRQ_CALL(12);
+    IRQ_CALL(13);
+    IRQ_CALL(14);
+    IRQ_CALL(15);
+
     idt_flush((uint32_t)&idt_ptr);
+
+    asm volatile ("sti");
+}
+
+int set_pitdiv(int freq) {
+    uint32_t div = 1193180 / freq;
+    outb(0x43, 0x36);
+
+    // Divisor has to be sent byte-wise, so split here into upper/lower bytes.
+    uint8_t l = (uint8_t)(div & 0xFF);
+    uint8_t h = (uint8_t)( (div >> 8) & 0xFF );
+
+    // Send the frequency divisor.
+    outb(0x40, l);
+    outb(0x40, h);
 }
 
 void i686_init() {
     init_gdt();
     init_idt();
+    set_pitdiv(1000);
 }

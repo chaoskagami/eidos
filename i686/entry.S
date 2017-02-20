@@ -104,6 +104,15 @@ gdt_flush:
          jmp isr_stub
 .endm
 
+.macro IRQ index
+    .global irq_\index
+    .type irq_\index , @function
+     irq_\index :
+         push $0
+         push $\index
+         jmp irq_stub
+.endm
+
 ISR 0
 ISR 1
 ISR 2
@@ -137,6 +146,23 @@ ISR 29
 ISR_E 30
 ISR 31
 
+IRQ 0
+IRQ 1
+IRQ 2
+IRQ 3
+IRQ 4
+IRQ 5
+IRQ 6
+IRQ 7
+IRQ 8
+IRQ 9
+IRQ 10
+IRQ 11
+IRQ 12
+IRQ 13
+IRQ 14
+IRQ 15
+
 isr_stub:
         pusha
 
@@ -164,6 +190,37 @@ isr_stub:
 
         popa
         add $8, %esp
+        iret
+
+
+irq_stub:
+        pusha
+
+        mov %ds, %ax
+        push %eax
+
+        mov    $0x10,%ax
+        mov    %ax,%ds
+        mov    %ax,%es
+        mov    %ax,%fs
+        mov    %ax,%gs
+
+        push %esp
+
+        cld
+        call irq_handler
+
+        pop    %ebx
+
+        pop    %ebx
+        mov    %bx,%ds
+        mov    %bx,%es
+        mov    %bx,%fs
+        mov    %bx,%gs
+
+        popa
+        add $8, %esp
+	sti
         iret
 
 .global idt_flush

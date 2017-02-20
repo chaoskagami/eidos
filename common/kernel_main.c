@@ -10,10 +10,11 @@ int kernel_main(struct multiboot *mboot_ptr)
 
     console_deinit();
 
-    asm volatile("int $4");
-    asm volatile("int $3");
-
-    while(1);
+    while(1) {
+        uint64_t clock = kclock();
+        kprintf("%X%X\r", ((uint32_t*)&clock)[1], ((uint32_t*)&clock)[0]);
+        asm("hlt");
+    }
 
     return 0xDEADBEEF;
 }
