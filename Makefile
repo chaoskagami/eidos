@@ -8,9 +8,10 @@ CONF=-DCONF_EARLY_KPRINTF=1
 TGT=i686
 
 SOURCES= \
-    $(TGT)/entry.o \
-    $(TGT)/utils.o \
-    module/biosvga/module.o module/serial/module.o module/console.o \
+    $(TGT)/entry.o $(TGT)/utils.o $(TGT)/gdt.o $(TGT)/idt.o $(TGT)/timer.o \
+    module/biosvga/module.o \
+    module/console.o \
+    common/stdc/putc.o common/stdc/puts.o common/stdc/vsprintf.o common/stdc/printf.o common/stdc/strcatlen.o common/stdc/dumphex.o \
     common/stdc/memmove.o common/stdc/strlen.o common/stdc/memcmp.o common/stdc/memset.o common/stdc/memcpy.o \
     common/kernel_main.o
 
@@ -26,7 +27,7 @@ NM=$(TGTNAM)-nm
 RL=$(TGTNAM)-ranlib
 
 CFLAGS=-ffreestanding -std=gnu11
-CPPFLAGS=-Iinclude -I$(TGT)/include
+CPPFLAGS=-Iinclude -Iinclude/stdc -I$(TGT)/include
 LDFLAGS=-T$(LDSC)
 ASFLAGS=
 LIBS=

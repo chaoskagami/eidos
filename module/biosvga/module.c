@@ -1,24 +1,16 @@
 #include <stdint.h>
+#include <string.h>
 #include <module.h>
 #include <module_console.h>
 
+#define WIDTH  80
+#define HEIGHT 25
+
+int x, y;
+
 uint16_t *video_mem = (uint16_t*)0xC00B8000;
 
-void biosvga_put(char c, char color_fg, char color_bg, uint16_t x, uint16_t y) {
-    uint8_t attr = (color_bg << 4) | (color_fg & 0xF);
-    uint16_t write = (attr << 8) | c;
-
-    video_mem[y * 80 + x] = write;
-}
-
-void biosvga_get(char* c, char* color_fg, char* color_bg, uint16_t x, uint16_t y) {
-    uint16_t write = video_mem[y * 80 + x];
-    *c = (char)(write & 0xFF);
-    *color_bg = (write << 12) & 0xF;
-    *color_fg = (write << 8)  & 0xF;
-}
-
-void biosvga_cursor(uint16_t x, uint16_t y) {
+void cursor(uint16_t x, uint16_t y) {
     uint16_t loc = y * 80 + x;
     outb(0x3D4, 14);
     outb(0x3D5, loc >> 8);
@@ -26,37 +18,54 @@ void biosvga_cursor(uint16_t x, uint16_t y) {
     outb(0x3D5, loc);
 }
 
-uint16_t biosvga_width() {
-    return 80;
+void biosvga_wb(char c) {
+    uint8_t color_bg = 0;
+    uint8_t color_fg = 0xF;
+    uint8_t attr = (color_bg << 4) | (color_fg & 0xF);
+    uint16_t write = (attr << 8) | c;
+
+    switch(c) {
+        case '\n':
+            y++;
+        case '\r':
+            x = 0;
+            break;
+        case '\b':
+            if (x) --x;
+            break;
+        case '\t':
+            x += 4 - (x % 4);
+            break;
+        case ' ' ... '~':
+            video_mem[y * 80 + x] = write;
+            ++x;
+            break;
+    }
+
+    if (x >= WIDTH) {
+        x = 0;
+        ++y;
+    }
+
+    if (y >= HEIGHT) {
+        memcpy(video_mem, &video_mem[80], (HEIGHT - 1) * 80 * sizeof(uint16_t));
+        --y;
+        memset(&video_mem[y * 80], 0, 160);
+    }
+
+    cursor(x, y);
 }
 
-uint16_t biosvga_height() {
-    return 25;
-}
-
-void biosvga_refresh() {
-
-}
-
-int biosvga_tty() {
-    return 1;
-}
-
-struct console_module biosvga_module = {
-    .put    = biosvga_put,
-    .get    = biosvga_get,
-    .tty    = biosvga_tty,
-    .cursor = biosvga_cursor,
-    .width  = biosvga_width,
-    .height = biosvga_height,
-    .refresh = biosvga_refresh
+struct output biosvga_module = {
+    .out    = biosvga_wb
 };
 
 void biosvga_init() {
-    console_register_module(&biosvga_module);
+    x = y = 0;
+    console_reg(&biosvga_module);
 }
 
 void biosvga_deinit() {
-    console_unregister_module(&biosvga_module);
+    console_unreg(&biosvga_module);
     // Stub.
 }
