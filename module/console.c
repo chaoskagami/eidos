@@ -32,12 +32,20 @@ void console_unreg_read(struct input* out) {
         in_active = NULL;
 }
 
+void console_refresh() {
+    while (in_active->avail()) {
+        out_active->out(in_active->in());
+    }
+}
+
 void console_init() {
     // Temporary
     biosvga_init();
+    ps2input_init();
 }
 
 void console_deinit() {
     // Temporary
     biosvga_deinit();
+    ps2input_deinit();
 }

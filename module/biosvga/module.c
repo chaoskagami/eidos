@@ -31,7 +31,10 @@ void biosvga_wb(char c) {
             x = 0;
             break;
         case '\b':
-            if (x) --x;
+            if (x) {
+                --x;
+                video_mem[y * 80 + x] = (attr << 8) | ' ';
+            }
             break;
         case '\t':
             x += 4 - (x % 4);

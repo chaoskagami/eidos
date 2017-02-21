@@ -10,6 +10,7 @@ TGT=i686
 SOURCES= \
     $(TGT)/entry.o $(TGT)/utils.o $(TGT)/gdt.o $(TGT)/idt.o $(TGT)/timer.o \
     module/biosvga/module.o \
+    module/ps2input/module.o \
     module/console.o \
     common/stdc/putc.o common/stdc/puts.o common/stdc/vsprintf.o common/stdc/printf.o common/stdc/strcatlen.o common/stdc/dumphex.o \
     common/stdc/memmove.o common/stdc/strlen.o common/stdc/memcmp.o common/stdc/memset.o common/stdc/memcpy.o \
