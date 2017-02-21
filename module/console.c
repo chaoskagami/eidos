@@ -7,18 +7,29 @@ actually printing to; in the future, adding a new backend for framebuffer render
 #include <module.h>
 #include <module_console.h>
 
-struct output *active;
+struct output *out_active;
+struct input *in_active;
 
 void put_handler(char c) {
-    active->out(c);
+    out_active->out(c);
 }
 
-void console_reg(struct output* out) {
-    active = out;
+void console_reg_write(struct output* out) {
+    out_active = out;
 }
 
-void console_unreg(struct output* out) {
-    active = out;
+void console_unreg_write(struct output* out) {
+    if (out_active == out)
+        out_active = NULL;
+}
+
+void console_reg_read(struct input* out) {
+    in_active = out;
+}
+
+void console_unreg_read(struct input* out) {
+    if (in_active == out)
+        in_active = NULL;
 }
 
 void console_init() {

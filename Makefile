@@ -3,7 +3,7 @@
 # The only one that needs changing is the assembler
 # rule, as we use nasm instead of GNU as.
 
-CONF=-DCONF_EARLY_KPRINTF=1
+CONF=-DCONF_TIMER_FREQ=1000
 
 TGT=i686
 

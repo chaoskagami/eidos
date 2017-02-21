@@ -1,6 +1,8 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include <idt.h>
+
 #include <stdc/string.h>
 
 int set_pitdiv(int freq) {
@@ -14,4 +16,19 @@ int set_pitdiv(int freq) {
     // Send the frequency divisor.
     outb(0x40, l);
     outb(0x40, h);
+}
+
+uint64_t ticks = 0;
+
+uint64_t clock() {
+    return ticks;
+}
+
+void clock_inc(struct interrupt_frame* frame) {
+    ++ticks;
+}
+
+void i686_pic_init() {
+    register_int_handler(32, clock_inc);
+    set_pitdiv(CONF_TIMER_FREQ);
 }

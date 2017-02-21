@@ -52,5 +52,6 @@ int set_pitdiv(int freq);
 void i686_init() {
     init_gdt();
     init_idt();
-    set_pitdiv(1000);
+
+    i686_pic_init();
 }

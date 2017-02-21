@@ -62,10 +62,10 @@ struct output biosvga_module = {
 
 void biosvga_init() {
     x = y = 0;
-    console_reg(&biosvga_module);
+    console_reg_write(&biosvga_module);
 }
 
 void biosvga_deinit() {
-    console_unreg(&biosvga_module);
+    console_unreg_write(&biosvga_module);
     // Stub.
 }
