@@ -1,5 +1,5 @@
-#ifndef _STRING_H
-#define _STRING_H 1
+#ifndef _STDIO_H
+#define _STDIO_H 1
 
 #include <sys/cdefs.h>
 #include <stddef.h>

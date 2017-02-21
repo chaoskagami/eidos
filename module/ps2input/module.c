@@ -4,11 +4,12 @@
 #include <module_console.h>
 
 #include <idt.h>
+#include <utils.h>
 
 char avail_buf[256];
 int avail_cnt = 0;
 
-void ps2input_int(struct interrupt_frame* esp) {
+void ps2input_int(__attribute__((unused)) struct interrupt_frame* esp) {
     do {
         if (inb(0x60) != 0) {
             avail_buf[avail_cnt] = inb(0x60);
@@ -35,7 +36,8 @@ char ps2input_rb() {
 
     --avail_cnt;
 
-    char r = charmap[avail_buf[0]];
+    int c = avail_buf[0];
+    char r = charmap[c];
 
     memcpy(&avail_buf[0], &avail_buf[1], 255);
 

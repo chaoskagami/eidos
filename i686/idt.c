@@ -2,6 +2,7 @@
 #include <stddef.h>
 
 #include <idt.h>
+#include <utils.h>
 
 #include <stdc/string.h>
 
@@ -87,8 +88,6 @@ void isr_handler(struct interrupt_frame* esp) {
 }
 
 void irq_handler(struct interrupt_frame* esp) {
-    char c_kb = 0;
-
     if (esp->int_no >= 7) {
          outb(0xA0, 0x20);
     }
@@ -168,6 +167,8 @@ void init_irq()
     IRQ_CALL(14);
     IRQ_CALL(15);
 }
+
+extern void idt_flush(uint32_t);
 
 void init_idt()
 {

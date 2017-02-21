@@ -2,10 +2,11 @@
 #include <stddef.h>
 
 #include <idt.h>
+#include <utils.h>
 
 #include <stdc/string.h>
 
-int set_pitdiv(int freq) {
+void set_pitdiv(int freq) {
     uint32_t div = 1193180 / freq;
     outb(0x43, 0x36);
 
@@ -24,11 +25,11 @@ uint64_t clock() {
     return ticks;
 }
 
-void clock_inc(struct interrupt_frame* frame) {
+void clock_inc(__attribute__((unused)) struct interrupt_frame* frame) {
     ++ticks;
 }
 
-void i686_pic_init() {
+void i686_pit_init() {
     register_int_handler(32, clock_inc);
     set_pitdiv(CONF_TIMER_FREQ);
 }

@@ -47,11 +47,11 @@ uint32_t inl(uint16_t port)
 
 void init_gdt();
 void init_idt();
-int set_pitdiv(int freq);
+void i686_pit_init();
 
 void i686_init() {
     init_gdt();
     init_idt();
 
-    i686_pic_init();
+    i686_pit_init();
 }

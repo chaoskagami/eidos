@@ -56,8 +56,6 @@ _start:
 
     mov $stack_top, %esp
 
-    push %ebx
-
     call i686_init
 
     call kernel_main

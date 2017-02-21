@@ -38,11 +38,17 @@ void console_refresh() {
     }
 }
 
+void biosvga_init();
+void ps2input_init();
+
 void console_init() {
     // Temporary
     biosvga_init();
     ps2input_init();
 }
+
+void biosvga_deinit();
+void ps2input_deinit();
 
 void console_deinit() {
     // Temporary

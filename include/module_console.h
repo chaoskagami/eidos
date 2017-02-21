@@ -21,3 +21,4 @@ void console_unreg_read(struct input*);
 
 void console_init();
 void console_deinit();
+void console_refresh();

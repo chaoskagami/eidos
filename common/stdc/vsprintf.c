@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 void vsprintf(char *buffer, const char* fmt_con, va_list ap) {
     char* fmt = (char*)fmt_con;

@@ -3,6 +3,8 @@
 #include <module.h>
 #include <module_console.h>
 
+#include <utils.h>
+
 #define WIDTH  80
 #define HEIGHT 25
 

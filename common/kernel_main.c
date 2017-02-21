@@ -2,9 +2,11 @@
 #include <module.h>
 #include <module_console.h>
 
+#include <multiboot.h>
+
 #include <stdio.h>
 
-int kernel_main(struct multiboot *mboot_ptr)
+int kernel_main(void)
 {
     console_init();
 
